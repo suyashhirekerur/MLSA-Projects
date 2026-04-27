@@ -1,5 +1,10 @@
 import streamlit as st
-import pyfiglet
+try:
+    import pyfiglet
+    pyfiglet_available = True
+except ImportError:
+    pyfiglet = None
+    pyfiglet_available = False
 from PIL import Image, ImageDraw, ImageFont
 import io
 import os
@@ -109,6 +114,11 @@ if 'theme' in st.session_state and st.session_state.theme == 'light':
 
 st.markdown(terminal_css, unsafe_allow_html=True)
 
+if not pyfiglet_available:
+    st.warning(
+        "The pyfiglet package is not installed. Text-to-ASCII features are disabled until pyfiglet is added to requirements.txt and the app is redeployed."
+    )
+
 # Initialize session state
 if 'gallery' not in st.session_state:
     st.session_state.gallery = []
@@ -171,6 +181,9 @@ def create_colored_html(art, color1, color2=None, gradient=False):
 
 def get_pyfiglet_fonts():
     """Get list of available pyfiglet fonts"""
+    if not pyfiglet_available:
+        return ['standard']
+
     fonts = [
         'big', 'banner', 'block', 'bubble', 'digital', 'ivrit', 'lean',
         'mini', 'script', 'shadow', 'slant', 'small', 'smscript', 'smshadow',
@@ -187,6 +200,9 @@ def get_pyfiglet_fonts():
 
 def generate_ascii_art(text, font, alignment, spacing):
     """Generate ASCII art from text"""
+    if not pyfiglet_available:
+        return "Error: The pyfiglet package is not installed. Please add pyfiglet to requirements.txt and redeploy."
+
     try:
         fig = pyfiglet.Figlet(font=font, width=120)
         art = fig.renderText(text)
